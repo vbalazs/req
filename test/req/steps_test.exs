@@ -255,6 +255,25 @@ defmodule Req.StepsTest do
     assert Req.Request.get_private(req, :path_params_template) == "/users/:id"
   end
 
+  test "path params does not overwrite the redirect target" do
+    %{req: req, url: url} =
+      serve(
+        "GET /a": &send_redirect(&1, 302, "/b"),
+        "GET /b": &send_resp(&1, 200, "ok")
+      )
+
+    {req, resp} =
+      Req.run!(req,
+        url: "#{url}/:path",
+        path_params: [path: "a"],
+        redirect_log_level: false
+      )
+
+    assert resp.status == 200
+    assert req.url.path == "/b"
+    assert req.options[:path_params] == nil
+  end
+
   test "put_path_params properly escapes reserved characters" do
     %{req: req, url: url} =
       serve(&send_resp(&1, 200, &1.request_path))

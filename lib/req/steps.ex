@@ -1511,6 +1511,7 @@ defmodule Req.Steps do
     request
     # assume put_params step already run so remove :params option so it's not applied again
     |> Req.Request.delete_option(:params)
+    |> Req.Request.delete_option(:path_params)
     |> remove_credentials_if_untrusted(redirect_trusted, location_url)
     |> change_post_to_get(response.status)
     |> Map.replace!(:url, location_url)
