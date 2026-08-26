@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## v0.7.4 (2026-08-26)
+
+  * [`put_params`]: Allow explicit duplicates.
+
+    in v0.7.0 we made this change:
+
+    > Overwrite existing query params instead of appending.
+
+    This was a regression for legitimate use cases where some servers require duplicate params.
+    Now we allow explicit duplicates but otherwise overwrite any previously set:
+
+        Req.get!("?id=1&foo=bar", params: [id: 2, id: 3]) # ?id=2&id=3&foo=bar
+
+  * [`put_path_params`]: Do not overwrite redirect target.
+
 ## v0.7.3 (2026-08-19)
 
   * [`encode_body`]: Revert "Automatically change GET to POST when request body is set."
