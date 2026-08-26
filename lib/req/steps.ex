@@ -598,14 +598,15 @@ defmodule Req.Steps do
 
   defp put_params(request, new_params) do
     update_in(request.url.query, fn query ->
-      old_params = Enum.to_list(URI.query_decoder(query || ""))
+      new_params = Enum.map(new_params, fn {name, value} -> {to_string(name), value} end)
+      names = Enum.map(new_params, &elem(&1, 0))
 
-      new_params
-      |> Enum.reduce(old_params, fn {name, value}, acc ->
-        name = to_string(name)
-        List.keystore(acc, name, 0, {name, value})
-      end)
-      |> URI.encode_query()
+      old_params =
+        (query || "")
+        |> URI.query_decoder()
+        |> Enum.reject(fn {name, _value} -> name in names end)
+
+      URI.encode_query(old_params ++ new_params)
     end)
   end
 

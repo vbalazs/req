@@ -190,9 +190,10 @@ defmodule Req.StepsTest do
       )
 
     assert Req.get!(req, params: [x: 1, y: 2]).body == "x=1&y=2"
-    assert Req.get!(req, params: [x: 1, x: 2]).body == "x=2"
+    assert Req.get!(req, params: [x: 1, x: 2]).body == "x=1&x=2"
     assert Req.get!(req, url: "#{url}?x=1", params: [x: 9, y: 2]).body == "x=9&y=2"
-    assert Req.get!(req, url: "#{url}?x=1&x=2&y=1", params: [x: 9]).body == "x=9&x=2&y=1"
+    assert Req.get!(req, url: "#{url}?x=1&x=2&y=1", params: [x: 9]).body == "y=1&x=9"
+    assert Req.get!(req, url: "#{url}?x=1&x=2&y=1", params: [x: 3, x: 4]).body == "y=1&x=3&x=4"
   end
 
   # TODO: support this?
