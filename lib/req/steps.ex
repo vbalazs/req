@@ -601,12 +601,18 @@ defmodule Req.Steps do
       new_params = Enum.map(new_params, fn {name, value} -> {to_string(name), value} end)
       names = Enum.map(new_params, &elem(&1, 0))
 
-      old_params =
-        (query || "")
-        |> URI.query_decoder()
-        |> Enum.reject(fn {name, _value} -> name in names end)
+      old_params = URI.query_decoder(query || "")
 
-      URI.encode_query(old_params ++ new_params)
+      {params, rest} =
+        Enum.flat_map_reduce(old_params, new_params, fn {name, value}, pending ->
+          if name in names do
+            Enum.split_with(pending, fn {new_name, _value} -> new_name == name end)
+          else
+            {[{name, value}], pending}
+          end
+        end)
+
+      URI.encode_query(params ++ rest)
     end)
   end
 
